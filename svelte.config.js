@@ -22,7 +22,8 @@ const config = {
 		}),
 		paths: {
 			base: dev ? '' : '/gbp-rating-tool'
-		}
+		},
+		appDir: 'app'
 	}
 };
 
