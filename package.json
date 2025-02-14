@@ -1,5 +1,5 @@
 {
-	"name": "gbp-rating-tool",
+	"name": "test-api",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -26,7 +26,6 @@
 		"globals": "^15.14.0",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",
-		"sass": "^1.84.0",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
 		"typescript": "^5.0.0",
