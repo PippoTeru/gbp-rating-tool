@@ -190,14 +190,14 @@
 	<div class="rateDisplay">
 		<p class="rateText">あなたの現在のレートは {rate.toFixed(2)} です。</p>
 		<!-- <a href={url}>JSONダウンロード</a> -->
+		<button class="changeSort" onclick={() => sortVision()}>
+			{#if sortVisible == 0}
+				絞り込み
+			{:else if sortVisible == 11}
+				閉じる
+			{/if}
+		</button>
 	</div>
-	<button class="changeSort" onclick={() => sortVision()}>
-		{#if sortVisible == 0}
-			絞り込み
-		{:else if sortVisible == 11}
-			閉じる
-		{/if}
-	</button>
 	{#if sortVisible == 11}
 		<div class="options">
 			<div class="flexContainer">
