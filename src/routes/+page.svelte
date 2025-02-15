@@ -33,7 +33,7 @@
 
 	function sortVision() {
 		if (sortVisible == 0) {
-			sortVisible = 1;
+			sortVisible = 11;
 		} else {
 			sortVisible = 0;
 		}
@@ -153,19 +153,19 @@
 	function enter(event: KeyboardEvent, index: number) {
 		let elements = document.querySelectorAll('input');
 		if (event.key === 'Enter' || event.key === 'ArrowDown') {
-			elements[index + 4 + 11].focus();
+			elements[index + 4 + sortVisible].focus();
 		} else if (event.key === 'ArrowUp') {
-			elements[index - 4 + 11].focus();
+			elements[index - 4 + sortVisible].focus();
 		} else if (event.key === 'ArrowRight') {
-			elements[index + 1 + 11].focus();
+			elements[index + 1 + sortVisible].focus();
 		} else if (event.key === 'ArrowLeft') {
-			elements[index - 1 + 11].focus();
+			elements[index - 1 + sortVisible].focus();
 		}
 	}
 
 	function focused(index: number) {
 		let elements = document.querySelectorAll('input');
-		elements[index + 11].select();
+		elements[index + sortVisible].select();
 	}
 
 	function resetData() {
@@ -194,11 +194,11 @@
 	<button class="changeSort" onclick={() => sortVision()}>
 		{#if sortVisible == 0}
 			絞り込み
-		{:else if sortVisible == 1}
+		{:else if sortVisible == 11}
 			閉じる
 		{/if}
 	</button>
-	{#if sortVisible == 1}
+	{#if sortVisible == 11}
 		<div class="options">
 			<div class="flexContainer">
 				<div class="filter">
