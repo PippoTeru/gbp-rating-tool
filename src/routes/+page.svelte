@@ -476,7 +476,7 @@
 	.rateNumber {
 		font-size: 1.5rem;
 		font-weight: bolder;
-		padding: 0.25rem 1rem 0;
+		padding: 0.25rem 1rem 0.25rem;
 		color: #fff;
 		font-family: sans-serif;
 		border-radius: 5px;
