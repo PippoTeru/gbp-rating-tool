@@ -288,7 +288,6 @@
 		</div>
 	{/if}
 </div>
-<p></p>
 <div class="tableContainer">
 	<table border="1">
 		<thead>
@@ -521,6 +520,7 @@
 	}
 
 	.tableContainer {
+		margin-top: 1rem;
 		width: 100%;
 		overflow-x: scroll;
 	}
