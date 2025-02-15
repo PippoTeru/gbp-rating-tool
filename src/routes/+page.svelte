@@ -5,16 +5,29 @@
 
 	let songs = $state($songsData);
 
+	let sortFlag = $state(0);
+	let sortKey = $state('id');
+
 	let filterKey = $state('');
 	let filterValue = $state('');
 
 	if (browser) {
 		const data = localStorage.getItem('data');
+		const sFlg = localStorage.getItem('sFlg');
+		const sKey = localStorage.getItem('sKey');
 		const fKey = localStorage.getItem('fKey');
 		const fVal = localStorage.getItem('fVal');
 
 		if (data != null) {
 			songs = JSON.parse(data);
+		}
+
+		if (sFlg != null) {
+			sortFlag = Number(sFlg);
+		}
+
+		if (sKey != null) {
+			sortKey = sKey;
 		}
 
 		if (fKey != null) {
@@ -25,9 +38,6 @@
 			filterValue = fVal;
 		}
 	}
-
-	let sortFlag = $state(0);
-	let sortKey = 'id';
 
 	let sortVisible = $state(0);
 
@@ -45,6 +55,7 @@
 		} else {
 			sortFlag = 0;
 		}
+		localStorage.setItem('sFlg', String(sortFlag));
 		sortedData(sortKey);
 	}
 
@@ -66,6 +77,7 @@
 				songs.sort((a, b) => (Number(a[key]) > Number(b[key]) ? -1 : 1));
 			}
 		}
+		localStorage.setItem('sKey', sortKey);
 		change();
 	}
 
@@ -129,6 +141,28 @@
 
 	let rate = $state(0);
 
+	function getColorClass() {
+		if (rate >= 31) {
+			return 'c_gold';
+		} else if (rate >= 30.5) {
+			return 'c_silver';
+		} else if (rate >= 30) {
+			return 'c_copper';
+		} else if (rate >= 28) {
+			return 'c_special';
+		} else if (rate >= 25) {
+			return 'c_expert';
+		} else if (rate >= 20) {
+			return 'c_hard';
+		} else if (rate >= 15) {
+			return 'c_normal';
+		} else if (rate >= 10) {
+			return 'c_easy';
+		} else {
+			return 'c_none';
+		}
+	}
+
 	function change() {
 		let elements = document.getElementsByClassName('rate');
 		let list = [];
@@ -150,23 +184,28 @@
 		url = URL.createObjectURL(blob);
 	}
 
-	function enter(event: KeyboardEvent, index: number) {
-		let elements = document.querySelectorAll('input');
-		if (event.key === 'Enter' || event.key === 'ArrowDown') {
-			elements[index + 4 + sortVisible].focus();
-		} else if (event.key === 'ArrowUp') {
-			elements[index - 4 + sortVisible].focus();
-		} else if (event.key === 'ArrowRight') {
-			elements[index + 1 + sortVisible].focus();
-		} else if (event.key === 'ArrowLeft') {
-			elements[index - 1 + sortVisible].focus();
-		}
-	}
+	// function activeInput() {
+	// 	return 'numInput';
+	// }
 
-	function focused(index: number) {
-		let elements = document.querySelectorAll('input');
-		elements[index + sortVisible].select();
-	}
+	// function enter(event: KeyboardEvent, index: number) {
+	// 	let elements = document.querySelectorAll('.numInput');
+	// 	console.log(elements, index);
+	// 	if (event.key === 'Enter' || event.key === 'ArrowDown') {
+	// 		elements[index + 4].focus();
+	// 	} else if (event.key === 'ArrowUp') {
+	// 		elements[index - 4].focus();
+	// 	} else if (event.key === 'ArrowRight') {
+	// 		elements[index + 1].focus();
+	// 	} else if (event.key === 'ArrowLeft') {
+	// 		elements[index - 1].focus();
+	// 	}
+	// }
+
+	// function focused(index: number) {
+	// 	let elements = document.querySelectorAll('.numInput');
+	// 	elements[index].select();
+	// }
 
 	function resetData() {
 		songs = $songsInitialData;
@@ -188,15 +227,14 @@
 		<h1 class="heading">ガルパ レーティングツール</h1>
 	</header>
 	<div class="rateDisplay">
-		<p class="rateText">あなたの現在のレートは {rate.toFixed(2)} です。</p>
+		<p class="rateText">
+			あなたのレートは <span class="{getColorClass()} rateNumber">{rate.toFixed(2)}</span> です。
+		</p>
 		<!-- <a href={url}>JSONダウンロード</a> -->
-		<button class="changeSort" onclick={() => sortVision()}>
-			{#if sortVisible == 0}
-				絞り込み
-			{:else if sortVisible == 11}
-				閉じる
-			{/if}
-		</button>
+		{#if sortVisible == 0}
+			<button class="changeSort" onclick={() => sortVision()}>絞り込み</button>
+		{/if}
+		<button class="changeSort floatRight" onclick={() => resetData()}>データリセット</button>
 	</div>
 	{#if sortVisible == 11}
 		<div class="options">
@@ -208,23 +246,40 @@
 					<h3 class="filterTitle">難易度</h3>
 					<div class="filterButtons">
 						<label
-							><input type="radio" name="radio" onclick={() => filterData('', '')} />すべて</label
+							><input
+								checked={filterKey == '' && filterValue == ''}
+								type="radio"
+								name="radio"
+								onclick={() => filterData('', '')}
+							/>すべて</label
 						>
 						<label>
-							<input type="radio" name="radio" onclick={() => filterData('difficulty', '0')} />EASY
+							<input
+								checked={filterKey == 'difficulty' && filterValue == '0'}
+								type="radio"
+								name="radio"
+								onclick={() => filterData('difficulty', '0')}
+							/>EASY
 						</label>
 						<label>
 							<input
+								checked={filterKey == 'difficulty' && filterValue == '1'}
 								type="radio"
 								name="radio"
 								onclick={() => filterData('difficulty', '1')}
 							/>NORMAL
 						</label>
 						<label>
-							<input type="radio" name="radio" onclick={() => filterData('difficulty', '2')} />HARD
+							<input
+								checked={filterKey == 'difficulty' && filterValue == '2'}
+								type="radio"
+								name="radio"
+								onclick={() => filterData('difficulty', '2')}
+							/>HARD
 						</label>
 						<label>
 							<input
+								checked={filterKey == 'difficulty' && filterValue == '3'}
 								type="radio"
 								name="radio"
 								onclick={() => filterData('difficulty', '3')}
@@ -232,6 +287,7 @@
 						</label>
 						<label>
 							<input
+								checked={filterKey == 'difficulty' && filterValue == '4'}
 								type="radio"
 								name="radio"
 								onclick={() => filterData('difficulty', '4')}
@@ -245,13 +301,24 @@
 					</h2>
 					<div class="filterButtons">
 						<label
-							><input type="radio" name="sort" onclick={() => sortedData('id')} />デフォルト</label
-						>
-						<label
-							><input type="radio" name="sort" onclick={() => sortedData('title')} />楽曲名順</label
+							><input
+								checked={sortKey == 'id'}
+								type="radio"
+								name="sort"
+								onclick={() => sortedData('id')}
+							/>デフォルト</label
 						>
 						<label
 							><input
+								checked={sortKey == 'title'}
+								type="radio"
+								name="sort"
+								onclick={() => sortedData('title')}
+							/>楽曲名順</label
+						>
+						<label
+							><input
+								checked={sortKey == 'difficulty'}
 								type="radio"
 								name="sort"
 								onclick={() => sortedData('difficulty')}
@@ -259,6 +326,7 @@
 						>
 						<label
 							><input
+								checked={sortKey == 'level'}
 								type="radio"
 								name="sort"
 								onclick={() => sortedData('level')}
@@ -266,6 +334,7 @@
 						>
 						<label
 							><input
+								checked={sortKey == 'constant'}
 								type="radio"
 								name="sort"
 								onclick={() => sortedData('constant')}
@@ -281,130 +350,139 @@
 					</button>
 				</div>
 			</div>
-			<div>
-				<button class="changeSort" onclick={() => resetData()}>データリセット</button>
+			<div class="closeContainer">
+				<button class="changeSort" onclick={() => sortVision()}>閉じる</button>
 			</div>
 		</div>
 	{/if}
 </div>
-<div class="tableContainer">
-	<table border="1">
-		<thead>
-			<tr>
-				<!-- <th class="id">ID</th> -->
-				<th class="title">楽曲名</th>
-				<th class="num">難易度</th>
-				<th class="num">レベル</th>
-				<th class="num">譜面定数</th>
-				<th class="num">達成率</th>
-				<th class="num">レート</th>
-				<th class="num">PERFECT</th>
-				<th class="num">GREAT</th>
-				<th class="num">GOOD</th>
-				<th class="num">BAD</th>
-				<th class="num">MISS</th>
-			</tr>
-		</thead>
-		<tbody onchange={change}>
-			{#each songs as item, index}
-				{#if filterKey == '' && filterValue == ''}
-					<tr class={getDifficulty(item)}>
-						<!-- <td>{item.id}</td> -->
-						<td>{item.title}</td>
-						<td>{getDifficulty(item)}</td>
-						<td>{item.level}</td>
-						<td>{getConstant(item).toFixed(1)}</td>
-						<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
-						<td class="rate">{getRate(item).toFixed(2)}</td>
-						<td>{getPerfect(item)}</td>
-						<td>
-							<input
-								onkeydown={(event) => enter(event, index * 4)}
-								onfocus={() => focused(index * 4)}
-								class="num"
-								type="text"
-								bind:value={item.great}
-							/>
-						</td>
-						<td>
-							<input
-								onkeydown={(event) => enter(event, index * 4 + 1)}
-								onfocus={() => focused(index * 4 + 1)}
-								class="num"
-								type="text"
-								bind:value={item.good}
-							/>
-						</td>
-						<td>
-							<input
-								onkeydown={(event) => enter(event, index * 4 + 2)}
-								onfocus={() => focused(index * 4 + 2)}
-								class="num"
-								type="text"
-								bind:value={item.bad}
-							/>
-						</td>
-						<td>
-							<input
-								onkeydown={(event) => enter(event, index * 4 + 3)}
-								onfocus={() => focused(index * 4 + 3)}
-								class="num"
-								type="text"
-								bind:value={item.miss}
-							/>
-						</td>
-					</tr>
-				{:else if item[filterKey] === filterValue}
-					<tr class={getDifficulty(item)}>
-						<!-- <td>{item.id}</td> -->
-						<td>{item.title}</td>
-						<td>{getDifficulty(item)}</td>
-						<td>{item.level}</td>
-						<td>{getConstant(item).toFixed(1)}</td>
-						<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
-						<td class="rate">{getRate(item).toFixed(2)}</td>
-						<td>{getPerfect(item)}</td>
-						<td>
-							<input
-								onkeydown={(event) => enter(event, index * 4)}
-								onfocus={() => focused(index * 4)}
-								class="num"
-								type="text"
-								bind:value={item.great}
-							/>
-						</td>
-						<td>
-							<input
-								onkeydown={(event) => enter(event, index * 4 + 1)}
-								onfocus={() => focused(index * 4 + 1)}
-								class="num"
-								type="text"
-								bind:value={item.good}
-							/>
-						</td>
-						<td>
-							<input
-								onkeydown={(event) => enter(event, index * 4 + 2)}
-								onfocus={() => focused(index * 4 + 2)}
-								class="num"
-								type="text"
-								bind:value={item.bad}
-							/>
-						</td>
-						<td>
-							<input
-								onkeydown={(event) => enter(event, index * 4 + 3)}
-								onfocus={() => focused(index * 4 + 3)}
-								class="num"
-								type="text"
-								bind:value={item.miss}
-							/>
-						</td>
-					</tr>
-				{/if}
-			{/each}
-		</tbody>
-	</table>
+<div class="tableBase">
+	<div class="tableContainer">
+		<table border="1">
+			<thead>
+				<tr>
+					<!-- <th class="id">ID</th> -->
+					<th class="title">楽曲名</th>
+					<th class="num">難易度</th>
+					<th class="num">レベル</th>
+					<th class="num">譜面定数</th>
+					<th class="num">達成率</th>
+					<th class="num">レート</th>
+					<th class="num">PERFECT</th>
+					<th class="num">GREAT</th>
+					<th class="num">GOOD</th>
+					<th class="num">BAD</th>
+					<th class="num">MISS</th>
+				</tr>
+			</thead>
+			<tbody onchange={change}>
+				{#each songs as item, index}
+					{#if filterKey == '' && filterValue == ''}
+						<tr class={getDifficulty(item)}>
+							<!-- <td>{item.id}</td> -->
+							<td>{item.title}</td>
+							<td>{getDifficulty(item)}</td>
+							<td>{item.level}</td>
+							<td>{getConstant(item).toFixed(1)}</td>
+							<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
+							<td class="rate">{getRate(item).toFixed(2)}</td>
+							<td>{getPerfect(item)}</td>
+							<!-- <input
+									onkeydown={(event) => enter(event, index * 4)}
+									onfocus={() => focused(index * 4)}
+									class={activeInput()}
+									type="text"
+									bind:value={item.great}
+								/>
+							</td>
+							<td>
+								<input
+									onkeydown={(event) => enter(event, index * 4 + 1)}
+									onfocus={() => focused(index * 4 + 1)}
+									class={activeInput()}
+									type="text"
+									bind:value={item.good}
+								/>
+							</td>
+							<td>
+								<input
+									onkeydown={(event) => enter(event, index * 4 + 2)}
+									onfocus={() => focused(index * 4 + 2)}
+									class={activeInput()}
+									type="text"
+									bind:value={item.bad}
+								/>
+							</td>
+							<td>
+								<input
+									onkeydown={(event) => enter(event, index * 4 + 3)}
+									onfocus={() => focused(index * 4 + 3)}
+									class={activeInput()}
+									type="text"
+									bind:value={item.miss}
+								/>
+							</td> -->
+							<td><input class="numInput" type="text" bind:value={item.great} /></td>
+							<td><input class="numInput" type="text" bind:value={item.good} /></td>
+							<td><input class="numInput" type="text" bind:value={item.bad} /></td>
+							<td><input class="numInput" type="text" bind:value={item.miss} /></td>
+						</tr>
+					{:else if item[filterKey] === filterValue}
+						<tr class={getDifficulty(item)}>
+							<!-- <td>{item.id}</td> -->
+							<td>{item.title}</td>
+							<td>{getDifficulty(item)}</td>
+							<td>{item.level}</td>
+							<td>{getConstant(item).toFixed(1)}</td>
+							<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
+							<td class="rate">{getRate(item).toFixed(2)}</td>
+							<td>{getPerfect(item)}</td>
+							<!-- <td>
+								<input
+									onkeydown={(event) => enter(event, index * 4)}
+									onfocus={() => focused(index * 4)}
+									class={activeInput()}
+									type="text"
+									bind:value={item.great}
+								/>
+							</td>
+							<td>
+								<input
+									onkeydown={(event) => enter(event, index * 4 + 1)}
+									onfocus={() => focused(index * 4 + 1)}
+									class={activeInput()}
+									type="text"
+									bind:value={item.good}
+								/>
+							</td>
+							<td>
+								<input
+									onkeydown={(event) => enter(event, index * 4 + 2)}
+									onfocus={() => focused(index * 4 + 2)}
+									class={activeInput()}
+									type="text"
+									bind:value={item.bad}
+								/>
+							</td>
+							<td>
+								<input
+									onkeydown={(event) => enter(event, index * 4 + 3)}
+									onfocus={() => focused(index * 4 + 3)}
+									class={activeInput()}
+									type="text"
+									bind:value={item.miss}
+								/>
+							</td> -->
+							<td><input class="numInput" type="text" bind:value={item.great} /></td>
+							<td><input class="numInput" type="text" bind:value={item.good} /></td>
+							<td><input class="numInput" type="text" bind:value={item.bad} /></td>
+							<td><input class="numInput" type="text" bind:value={item.miss} /></td>
+						</tr>
+					{/if}
+				{/each}
+			</tbody>
+		</table>
+	</div>
 </div>
 
 <style>
@@ -414,6 +492,7 @@
 
 	.heading {
 		font-size: 1.5rem;
+		font-weight: bold;
 	}
 
 	.rateDisplay {
@@ -422,11 +501,76 @@
 
 	.rateText {
 		font-size: 1.25rem;
-		line-height: 2;
+	}
+
+	.rateNumber {
+		font-size: 1.5rem;
+		font-weight: bolder;
+		padding: 0 1rem;
+		color: #fff;
+		font-family: sans-serif;
+		border-radius: 5px;
+	}
+
+	.c_gold {
+		background-image: linear-gradient(
+			157deg,
+			rgba(255, 241, 215, 1) 10%,
+			rgba(255, 220, 101, 1) 40%,
+			rgba(218, 165, 51, 1) 68%,
+			rgba(166, 103, 11, 1) 90%
+		);
+		text-shadow:
+			1px 1px 0px #000,
+			-1px 1px 0px #000,
+			1px -1px 0px #000,
+			-1px -1px 0px #000,
+			1px 0px 0px #000,
+			0px 1px 0px #000,
+			-1px 0px 0px #000,
+			0px -1px 0px #000;
+	}
+
+	.c_silver {
+		background-color: #808080;
+	}
+
+	.c_copper {
+		background-color: #b87333;
+	}
+
+	.c_special {
+		background-color: #ee2299;
+	}
+
+	.c_expert {
+		background-color: #ff3333;
+	}
+
+	.c_hard {
+		background-color: #ffcc33;
+	}
+
+	.c_normal {
+		background-color: #66ff33;
+	}
+
+	.c_easy {
+		background-color: #3366ff;
+	}
+
+	.c_none {
+		background-color: #eee;
+		color: #000;
+	}
+
+	.floatRight {
+		float: right;
 	}
 
 	.options {
 		padding: 1rem;
+		clear: both;
 	}
 
 	.optionTitle {
@@ -444,7 +588,7 @@
 	.optionText {
 		position: relative;
 		top: -0.1rem;
-		font-size: 1.1rem;
+		font-size: 1.15rem;
 		color: #fff;
 		text-shadow:
 			1px 1px 0px #ff3b72,
@@ -477,7 +621,7 @@
 
 	.filter {
 		width: 50%;
-		min-width: 420px;
+		min-width: 360px;
 		padding: 1rem;
 	}
 
@@ -499,19 +643,33 @@
 	.filterButtons label {
 		width: 33%;
 		text-align: start;
-		font-size: 1.1rem;
+		font-size: 0.9rem;
 		line-height: 2;
 	}
 
 	.sort {
 		width: 50%;
-		min-width: 420px;
+		min-width: 360px;
 		padding: 1rem;
 	}
 
 	.changeSort {
 		margin-top: 1rem;
-		font-size: 1.1rem;
+		font-size: 0.95rem;
+		padding: 0 1rem;
+		line-height: 2.5;
+		background-color: #fafafa;
+		border: 2px solid #ddd;
+		border-radius: 10px;
+	}
+
+	.closeContainer {
+		display: flex;
+		justify-content: center;
+	}
+
+	.tableBase {
+		padding: 0 1rem;
 	}
 
 	.tableContainer {
@@ -523,33 +681,40 @@
 	table {
 		margin: 0 auto;
 		border-collapse: collapse;
-		width: 100%;
-		max-width: 100vw;
-		min-width: calc(1080px - 2rem - 1px);
+	}
+
+	thead {
+		background-color: #ddd;
 	}
 
 	th {
 		font-size: 0.8rem;
+		font-weight: normal;
 		border: solid 1px;
 		padding: 0.25rem;
+		text-align: center;
+		vertical-align: middle;
 	}
 
 	td {
 		font-size: 0.9rem;
 		border: solid 1px;
 		padding: 0.25rem;
-	}
-
-	/* .id {
-		width: 2rem;
+		vertical-align: middle;
 	}
 
 	.title {
-		width: 20rem;
-	} */
+		width: 30vw;
+		max-width: 20rem;
+	}
 
 	.num {
-		width: 4rem;
+		width: 7vw;
+	}
+
+	.numInput {
+		width: 100%;
+		min-width: 3rem;
 	}
 
 	.EASY {
