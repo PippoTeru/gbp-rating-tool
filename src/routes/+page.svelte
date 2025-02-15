@@ -2,6 +2,7 @@
 	import { songsInitialData, songsData } from '$lib/store';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	import { json } from '@sveltejs/kit';
 
 	let songs = $state($songsData);
 
@@ -20,13 +21,49 @@
 
 	if (browser) {
 		const data = localStorage.getItem('data');
+		let jsonData = JSON.parse(data);
+		jsonData.sort((a, b) => (Number(a.difficulty) < Number(b.difficulty) ? -1 : 1));
+		jsonData.sort((a, b) => (Number(a.id) < Number(b.id) ? -1 : 1));
 		const sFlg = localStorage.getItem('sFlg');
 		const sKey = localStorage.getItem('sKey');
 		const fKey = localStorage.getItem('fKey');
 		const fVal = localStorage.getItem('fVal');
 
 		if (data != null) {
-			songs = JSON.parse(data);
+			for (let i = 0; i < $songsInitialData.length; i++) {
+				let temp = jsonData.filter((element) => element.id == $songsInitialData[i].id);
+				if (temp.length == 0) {
+					for (
+						let j = 0;
+						j < $songsInitialData.filter((element) => element.id == $songsInitialData[i].id).length;
+						j++
+					) {
+						jsonData.push($songsInitialData[i + j]);
+					}
+					continue;
+				}
+				if (
+					temp.length <
+					$songsInitialData.filter((element) => element.id == $songsInitialData[i].id).length
+				) {
+					if (
+						temp.find((element) => element.difficulty == $songsInitialData[i].difficulty) == null
+					) {
+						jsonData.push($songsInitialData[i]);
+					}
+					continue;
+				}
+				let s = temp.find((element) => element.difficulty == $songsInitialData[i].difficulty);
+				if (s.level != $songsInitialData[i].level) {
+					jsonData[i].level = $songsInitialData[i].level;
+				}
+				if (s.constant != $songsInitialData[i].constant) {
+					console.log('aiueo', i, temp);
+					jsonData[i].constant = $songsInitialData[i].constant;
+					console.log('unko', jsonData[i], $songsInitialData[i]);
+				}
+			}
+			songs = jsonData;
 		}
 
 		if (sFlg != null) {
@@ -35,6 +72,20 @@
 
 		if (sKey != null) {
 			sortKey = sKey;
+			// svelte-ignore state_referenced_locally
+			if (sortKey == 'title') {
+				if (sortFlag == 0) {
+					jsonData.sort((a, b) => (a[sortKey] < b[sortKey] ? -1 : 1));
+				} else {
+					jsonData.sort((a, b) => (a[sortKey] > b[sortKey] ? -1 : 1));
+				}
+			} else {
+				if (sortFlag == 0) {
+					jsonData.sort((a, b) => (Number(a[sortKey]) < Number(b[sortKey]) ? -1 : 1));
+				} else {
+					jsonData.sort((a, b) => (Number(a[sortKey]) > Number(b[sortKey]) ? -1 : 1));
+				}
+			}
 		}
 
 		if (fKey != null) {
@@ -187,31 +238,9 @@
 		url = URL.createObjectURL(blob);
 	}
 
-	// function activeInput() {
-	// 	return 'numInput';
-	// }
-
-	// function enter(event: KeyboardEvent, index: number) {
-	// 	let elements = document.querySelectorAll('.numInput');
-	// 	console.log(elements, index);
-	// 	if (event.key === 'Enter' || event.key === 'ArrowDown') {
-	// 		elements[index + 4].focus();
-	// 	} else if (event.key === 'ArrowUp') {
-	// 		elements[index - 4].focus();
-	// 	} else if (event.key === 'ArrowRight') {
-	// 		elements[index + 1].focus();
-	// 	} else if (event.key === 'ArrowLeft') {
-	// 		elements[index - 1].focus();
-	// 	}
-	// }
-
-	// function focused(index: number) {
-	// 	let elements = document.querySelectorAll('.numInput');
-	// 	elements[index].select();
-	// }
-
 	function resetData() {
 		songs = $songsInitialData;
+		sortedData(sortKey);
 		localStorage.setItem('data', JSON.stringify(songs));
 		rate = 0;
 	}
@@ -378,7 +407,7 @@
 			</thead>
 			<tbody onchange={change}>
 				{#each songs as item, index}
-					{#if filterKey == '' && filterValue == ''}
+					{#if (filterKey == '' && filterValue == '') || item[filterKey] === filterValue}
 						<tr class={getDifficulty(item)}>
 							<!-- <td>{item.id}</td> -->
 							<td>{item.title}</td>
@@ -388,49 +417,13 @@
 							<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
 							<td class="rate">{getRate(item).toFixed(2)}</td>
 							<td>{getPerfect(item)}</td>
-							<!-- <input
-									onkeydown={(event) => enter(event, index * 4)}
-									onfocus={() => focused(index * 4)}
-									class={activeInput()}
-									type="text"
-									bind:value={item.great}
-								/>
-							</td>
-							<td>
-								<input
-									onkeydown={(event) => enter(event, index * 4 + 1)}
-									onfocus={() => focused(index * 4 + 1)}
-									class={activeInput()}
-									type="text"
-									bind:value={item.good}
-								/>
-							</td>
-							<td>
-								<input
-									onkeydown={(event) => enter(event, index * 4 + 2)}
-									onfocus={() => focused(index * 4 + 2)}
-									class={activeInput()}
-									type="text"
-									bind:value={item.bad}
-								/>
-							</td>
-							<td>
-								<input
-									onkeydown={(event) => enter(event, index * 4 + 3)}
-									onfocus={() => focused(index * 4 + 3)}
-									class={activeInput()}
-									type="text"
-									bind:value={item.miss}
-								/>
-							</td> -->
 							<td><input class="numInput" type="text" bind:value={item.great} /></td>
 							<td><input class="numInput" type="text" bind:value={item.good} /></td>
 							<td><input class="numInput" type="text" bind:value={item.bad} /></td>
 							<td><input class="numInput" type="text" bind:value={item.miss} /></td>
 						</tr>
-					{:else if item[filterKey] === filterValue}
+						<!-- {:else if item[filterKey] === filterValue}
 						<tr class={getDifficulty(item)}>
-							<!-- <td>{item.id}</td> -->
 							<td>{item.title}</td>
 							<td>{getDifficulty(item)}</td>
 							<td>{item.level}</td>
@@ -438,47 +431,11 @@
 							<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
 							<td class="rate">{getRate(item).toFixed(2)}</td>
 							<td>{getPerfect(item)}</td>
-							<!-- <td>
-								<input
-									onkeydown={(event) => enter(event, index * 4)}
-									onfocus={() => focused(index * 4)}
-									class={activeInput()}
-									type="text"
-									bind:value={item.great}
-								/>
-							</td>
-							<td>
-								<input
-									onkeydown={(event) => enter(event, index * 4 + 1)}
-									onfocus={() => focused(index * 4 + 1)}
-									class={activeInput()}
-									type="text"
-									bind:value={item.good}
-								/>
-							</td>
-							<td>
-								<input
-									onkeydown={(event) => enter(event, index * 4 + 2)}
-									onfocus={() => focused(index * 4 + 2)}
-									class={activeInput()}
-									type="text"
-									bind:value={item.bad}
-								/>
-							</td>
-							<td>
-								<input
-									onkeydown={(event) => enter(event, index * 4 + 3)}
-									onfocus={() => focused(index * 4 + 3)}
-									class={activeInput()}
-									type="text"
-									bind:value={item.miss}
-								/>
-							</td> -->
 							<td><input class="numInput" type="text" bind:value={item.great} /></td>
 							<td><input class="numInput" type="text" bind:value={item.good} /></td>
 							<td><input class="numInput" type="text" bind:value={item.bad} /></td>
 							<td><input class="numInput" type="text" bind:value={item.miss} /></td>
-						</tr>
+						</tr> -->
 					{/if}
 				{/each}
 			</tbody>
