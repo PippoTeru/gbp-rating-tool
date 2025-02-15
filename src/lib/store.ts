@@ -1,7 +1,10 @@
-/* eslint-disable prefer-const */
 import { readable, writable } from 'svelte/store';
-// import data from '$lib/assets/songs.json';
 import data from '$lib/assets/data.json';
+
+export const songsInitialData = readable(data);
+export const songsData = writable(data);
+
+// import data from '$lib/assets/songs.json';
 
 // let temp = [];
 // for (const item in data) {
@@ -35,6 +38,3 @@ import data from '$lib/assets/data.json';
 
 // export const songsInitialData = readable(temp);
 // export const songsData = writable(temp);
-
-export const songsInitialData = readable(data);
-export const songsData = writable(data);

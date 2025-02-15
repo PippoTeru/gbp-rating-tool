@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { songsInitialData, songsData } from '$lib/store';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import { json } from '@sveltejs/kit';
+	import { songsInitialData, songsData } from '$lib/store';
 
 	let songs = $state($songsData);
 
@@ -21,9 +20,11 @@
 
 	if (browser) {
 		const data = localStorage.getItem('data');
-		let jsonData = JSON.parse(data);
-		jsonData.sort((a, b) => (Number(a.difficulty) < Number(b.difficulty) ? -1 : 1));
-		jsonData.sort((a, b) => (Number(a.id) < Number(b.id) ? -1 : 1));
+		let jsonData = JSON.parse(String(data));
+		jsonData.sort((a: { difficulty: any }, b: { difficulty: any }) =>
+			Number(a.difficulty) < Number(b.difficulty) ? -1 : 1
+		);
+		jsonData.sort((a: { id: any }, b: { id: any }) => (Number(a.id) < Number(b.id) ? -1 : 1));
 		const sFlg = localStorage.getItem('sFlg');
 		const sKey = localStorage.getItem('sKey');
 		const fKey = localStorage.getItem('fKey');
@@ -31,7 +32,9 @@
 
 		if (data != null) {
 			for (let i = 0; i < $songsInitialData.length; i++) {
-				let temp = jsonData.filter((element) => element.id == $songsInitialData[i].id);
+				let temp = jsonData.filter(
+					(element: { id: string }) => element.id == $songsInitialData[i].id
+				);
 				if (temp.length == 0) {
 					for (
 						let j = 0;
@@ -47,20 +50,23 @@
 					$songsInitialData.filter((element) => element.id == $songsInitialData[i].id).length
 				) {
 					if (
-						temp.find((element) => element.difficulty == $songsInitialData[i].difficulty) == null
+						temp.find(
+							(element: { difficulty: string }) =>
+								element.difficulty == $songsInitialData[i].difficulty
+						) == null
 					) {
 						jsonData.push($songsInitialData[i]);
 					}
 					continue;
 				}
-				let s = temp.find((element) => element.difficulty == $songsInitialData[i].difficulty);
+				let s = temp.find(
+					(element: { difficulty: string }) => element.difficulty == $songsInitialData[i].difficulty
+				);
 				if (s.level != $songsInitialData[i].level) {
 					jsonData[i].level = $songsInitialData[i].level;
 				}
 				if (s.constant != $songsInitialData[i].constant) {
-					console.log('aiueo', i, temp);
 					jsonData[i].constant = $songsInitialData[i].constant;
-					console.log('unko', jsonData[i], $songsInitialData[i]);
 				}
 			}
 			songs = jsonData;
@@ -75,15 +81,23 @@
 			// svelte-ignore state_referenced_locally
 			if (sortKey == 'title') {
 				if (sortFlag == 0) {
-					jsonData.sort((a, b) => (a[sortKey] < b[sortKey] ? -1 : 1));
+					jsonData.sort((a: { [x: string]: number }, b: { [x: string]: number }) =>
+						a[sortKey] < b[sortKey] ? -1 : 1
+					);
 				} else {
-					jsonData.sort((a, b) => (a[sortKey] > b[sortKey] ? -1 : 1));
+					jsonData.sort((a: { [x: string]: number }, b: { [x: string]: number }) =>
+						a[sortKey] > b[sortKey] ? -1 : 1
+					);
 				}
 			} else {
 				if (sortFlag == 0) {
-					jsonData.sort((a, b) => (Number(a[sortKey]) < Number(b[sortKey]) ? -1 : 1));
+					jsonData.sort((a: { [x: string]: any }, b: { [x: string]: any }) =>
+						Number(a[sortKey]) < Number(b[sortKey]) ? -1 : 1
+					);
 				} else {
-					jsonData.sort((a, b) => (Number(a[sortKey]) > Number(b[sortKey]) ? -1 : 1));
+					jsonData.sort((a: { [x: string]: any }, b: { [x: string]: any }) =>
+						Number(a[sortKey]) > Number(b[sortKey]) ? -1 : 1
+					);
 				}
 			}
 		}
@@ -126,7 +140,13 @@
 			} else {
 				songs.sort((a, b) => (a[key] > b[key] ? -1 : 1));
 			}
-		} else {
+		} else if (
+			key == 'id' ||
+			key == 'band' ||
+			key == 'difficulty' ||
+			key == 'level' ||
+			key == 'constant'
+		) {
 			if (sortFlag == 0) {
 				songs.sort((a, b) => (Number(a[key]) < Number(b[key]) ? -1 : 1));
 			} else {
@@ -391,7 +411,6 @@
 		<table border="1">
 			<thead>
 				<tr>
-					<!-- <th class="id">ID</th> -->
 					<th class="title">楽曲名</th>
 					<th class="num">難易度</th>
 					<th class="num">レベル</th>
@@ -406,10 +425,9 @@
 				</tr>
 			</thead>
 			<tbody onchange={change}>
-				{#each songs as item, index}
-					{#if (filterKey == '' && filterValue == '') || item[filterKey] === filterValue}
+				{#each songs as item}
+					{#if (filterKey == '' && filterValue == '') || ((filterKey == 'id' || filterKey == 'title' || filterKey == 'band' || filterKey == 'difficulty' || filterKey == 'level' || filterKey == 'constant') && item[filterKey] === filterValue)}
 						<tr class={getDifficulty(item)}>
-							<!-- <td>{item.id}</td> -->
 							<td>{item.title}</td>
 							<td>{getDifficulty(item)}</td>
 							<td>{item.level}</td>
@@ -422,20 +440,6 @@
 							<td><input class="numInput" type="text" bind:value={item.bad} /></td>
 							<td><input class="numInput" type="text" bind:value={item.miss} /></td>
 						</tr>
-						<!-- {:else if item[filterKey] === filterValue}
-						<tr class={getDifficulty(item)}>
-							<td>{item.title}</td>
-							<td>{getDifficulty(item)}</td>
-							<td>{item.level}</td>
-							<td>{getConstant(item).toFixed(1)}</td>
-							<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
-							<td class="rate">{getRate(item).toFixed(2)}</td>
-							<td>{getPerfect(item)}</td>
-							<td><input class="numInput" type="text" bind:value={item.great} /></td>
-							<td><input class="numInput" type="text" bind:value={item.good} /></td>
-							<td><input class="numInput" type="text" bind:value={item.bad} /></td>
-							<td><input class="numInput" type="text" bind:value={item.miss} /></td>
-						</tr> -->
 					{/if}
 				{/each}
 			</tbody>
