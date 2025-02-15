@@ -29,6 +29,16 @@
 	let sortFlag = $state(0);
 	let sortKey = 'id';
 
+	let sortVisible = $state(0);
+
+	function sortVision() {
+		if (sortVisible == 0) {
+			sortVisible = 1;
+		} else {
+			sortVisible = 0;
+		}
+	}
+
 	function sortMode() {
 		if (sortFlag == 0) {
 			sortFlag = 1;
@@ -173,76 +183,111 @@
 	});
 </script>
 
-<div class="rateDisplay">
-	<p class="rateText">あなたの現在のレートは {rate.toFixed(2)} です。</p>
-	<!-- <a href={url}>JSONダウンロード</a> -->
-</div>
-<div class="options">
-	<div class="flexContainer">
-		<div class="filter">
-			<h2 class="optionTitle">
-				<span class="optionStar">★</span><span class="optionText">絞り込み</span>
-			</h2>
-			<h3 class="filterTitle">難易度</h3>
-			<div class="filterButtons">
-				<label><input type="radio" name="radio" onclick={() => filterData('', '')} />すべて</label>
-				<label>
-					<input type="radio" name="radio" onclick={() => filterData('difficulty', '0')} />EASY
-				</label>
-				<label>
-					<input type="radio" name="radio" onclick={() => filterData('difficulty', '1')} />NORMAL
-				</label>
-				<label>
-					<input type="radio" name="radio" onclick={() => filterData('difficulty', '2')} />HARD
-				</label>
-				<label>
-					<input type="radio" name="radio" onclick={() => filterData('difficulty', '3')} />EXPERT
-				</label>
-				<label>
-					<input type="radio" name="radio" onclick={() => filterData('difficulty', '4')} />SPECIAL
-				</label>
+<div class="top">
+	<header class="header">
+		<h1 class="heading">ガルパ レーティングツール</h1>
+	</header>
+	<div class="rateDisplay">
+		<p class="rateText">あなたの現在のレートは {rate.toFixed(2)} です。</p>
+		<!-- <a href={url}>JSONダウンロード</a> -->
+	</div>
+	<button class="changeSort" onclick={() => sortVision()}>
+		{#if sortVisible == 0}
+			絞り込み
+		{:else if sortVisible == 1}
+			閉じる
+		{/if}
+	</button>
+	{#if sortVisible == 1}
+		<div class="options">
+			<div class="flexContainer">
+				<div class="filter">
+					<h2 class="optionTitle">
+						<span class="optionStar">★</span><span class="optionText">絞り込み</span>
+					</h2>
+					<h3 class="filterTitle">難易度</h3>
+					<div class="filterButtons">
+						<label
+							><input type="radio" name="radio" onclick={() => filterData('', '')} />すべて</label
+						>
+						<label>
+							<input type="radio" name="radio" onclick={() => filterData('difficulty', '0')} />EASY
+						</label>
+						<label>
+							<input
+								type="radio"
+								name="radio"
+								onclick={() => filterData('difficulty', '1')}
+							/>NORMAL
+						</label>
+						<label>
+							<input type="radio" name="radio" onclick={() => filterData('difficulty', '2')} />HARD
+						</label>
+						<label>
+							<input
+								type="radio"
+								name="radio"
+								onclick={() => filterData('difficulty', '3')}
+							/>EXPERT
+						</label>
+						<label>
+							<input
+								type="radio"
+								name="radio"
+								onclick={() => filterData('difficulty', '4')}
+							/>SPECIAL
+						</label>
+					</div>
+				</div>
+				<div class="sort">
+					<h2 class="optionTitle">
+						<span class="optionStar">★</span><span class="optionText">ソート順</span>
+					</h2>
+					<div class="filterButtons">
+						<label
+							><input type="radio" name="sort" onclick={() => sortedData('id')} />デフォルト</label
+						>
+						<label
+							><input type="radio" name="sort" onclick={() => sortedData('title')} />楽曲名順</label
+						>
+						<label
+							><input
+								type="radio"
+								name="sort"
+								onclick={() => sortedData('difficulty')}
+							/>難易度順</label
+						>
+						<label
+							><input
+								type="radio"
+								name="sort"
+								onclick={() => sortedData('level')}
+							/>楽曲レベル順</label
+						>
+						<label
+							><input
+								type="radio"
+								name="sort"
+								onclick={() => sortedData('constant')}
+							/>譜面定数順</label
+						>
+					</div>
+					<button class="changeSort" onclick={() => sortMode()}>
+						{#if sortFlag == 0}
+							降順
+						{:else if sortFlag == 1}
+							昇順
+						{/if}
+					</button>
+				</div>
+			</div>
+			<div>
+				<p></p>
+				<button onclick={() => resetData()}>データリセット</button>
+				<p></p>
 			</div>
 		</div>
-		<div class="sort">
-			<h2 class="optionTitle">
-				<span class="optionStar">★</span><span class="optionText">ソート順</span>
-			</h2>
-			<div class="filterButtons">
-				<label><input type="radio" name="sort" onclick={() => sortedData('id')} />デフォルト</label>
-				<label><input type="radio" name="sort" onclick={() => sortedData('title')} />楽曲名順</label
-				>
-				<label
-					><input
-						type="radio"
-						name="sort"
-						onclick={() => sortedData('difficulty')}
-					/>難易度順</label
-				>
-				<label
-					><input type="radio" name="sort" onclick={() => sortedData('level')} />楽曲レベル順</label
-				>
-				<label
-					><input
-						type="radio"
-						name="sort"
-						onclick={() => sortedData('constant')}
-					/>譜面定数順</label
-				>
-			</div>
-			<button class="changeSort" onclick={() => sortMode()}>
-				{#if sortFlag == 0}
-					降順
-				{:else if sortFlag == 1}
-					昇順
-				{/if}
-			</button>
-		</div>
-	</div>
-	<div>
-		<p></p>
-		<button onclick={() => resetData()}>データリセット</button>
-		<p></p>
-	</div>
+	{/if}
 </div>
 <div class="tableContainer">
 	<table border="1">
@@ -365,6 +410,18 @@
 </div>
 
 <style>
+	.top {
+		position: sticky;
+	}
+
+	.header {
+		padding: 1rem;
+	}
+
+	.heading {
+		font-size: 2rem;
+	}
+
 	.rateDisplay {
 		padding: 1rem;
 	}
