@@ -282,8 +282,7 @@
 				</div>
 			</div>
 			<div>
-				<p></p>
-				<button onclick={() => resetData()}>データリセット</button>
+				<button class="changeSort" onclick={() => resetData()}>データリセット</button>
 			</div>
 		</div>
 	{/if}
@@ -409,10 +408,6 @@
 </div>
 
 <style>
-	.top {
-		position: sticky;
-	}
-
 	.header {
 		padding: 1rem;
 	}
