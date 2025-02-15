@@ -480,6 +480,7 @@
 		color: #fff;
 		font-family: sans-serif;
 		border-radius: 5px;
+		line-height: 1.5rem;
 	}
 
 	.c_gold {
