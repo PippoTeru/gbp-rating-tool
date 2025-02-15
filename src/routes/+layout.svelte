@@ -12,6 +12,10 @@
 	.base {
 		display: flex;
 		justify-content: center;
+		background-image: url('/live.png');
+		background-attachment: fixed;
+		background-size: cover;
+		background-position: center;
 	}
 
 	.container {

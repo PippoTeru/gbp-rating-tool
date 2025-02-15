@@ -281,18 +281,22 @@
 			あなたのレートは <span class="{getColorClass()} rateNumber">{rate.toFixed(2)}</span> です。
 		</p>
 		<!-- <a href={url}>JSONダウンロード</a> -->
-		{#if sortVisible == 0}
+		<div class="buttons">
 			<button class="changeSort" onclick={() => sortVision()}>絞り込み</button>
-		{/if}
-		<button class="changeSort floatRight" onclick={() => resetData()}>データリセット</button>
+			<button class="changeSort floatRight" onclick={() => resetData()}>データリセット</button>
+		</div>
 	</div>
 	{#if sortVisible == 11}
 		<div class="options">
+			<h2 class="optionHeading">
+				<img class="optionHeadingImage" src="/title.png" alt="" />
+				楽曲絞り込み
+			</h2>
 			<div class="flexContainer">
 				<div class="filter">
-					<h2 class="optionTitle">
+					<h3 class="optionTitle">
 						<span class="optionStar">★</span><span class="optionText">絞り込み</span>
-					</h2>
+					</h3>
 					<h3 class="filterTitle">難易度</h3>
 					<div class="filterButtons">
 						<label
@@ -346,9 +350,9 @@
 					</div>
 				</div>
 				<div class="sort">
-					<h2 class="optionTitle">
+					<h3 class="optionTitle">
 						<span class="optionStar">★</span><span class="optionText">ソート順</span>
-					</h2>
+					</h3>
 					<div class="filterButtons">
 						<label
 							><input
@@ -429,16 +433,16 @@
 					{#if (filterKey == '' && filterValue == '') || ((filterKey == 'id' || filterKey == 'title' || filterKey == 'band' || filterKey == 'difficulty' || filterKey == 'level' || filterKey == 'constant') && item[filterKey] === filterValue)}
 						<tr class={getDifficulty(item)}>
 							<td>{item.title}</td>
-							<td>{getDifficulty(item)}</td>
+							<td class="difficulty">{getDifficulty(item)}</td>
 							<td>{item.level}</td>
 							<td>{getConstant(item).toFixed(1)}</td>
 							<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
 							<td class="rate">{getRate(item).toFixed(2)}</td>
 							<td>{getPerfect(item)}</td>
-							<td><input class="numInput" type="text" bind:value={item.great} /></td>
-							<td><input class="numInput" type="text" bind:value={item.good} /></td>
-							<td><input class="numInput" type="text" bind:value={item.bad} /></td>
-							<td><input class="numInput" type="text" bind:value={item.miss} /></td>
+							<td class="numTd"><input class="numInput" type="text" bind:value={item.great} /></td>
+							<td class="numTd"><input class="numInput" type="text" bind:value={item.good} /></td>
+							<td class="numTd"><input class="numInput" type="text" bind:value={item.bad} /></td>
+							<td class="numTd"><input class="numInput" type="text" bind:value={item.miss} /></td>
 						</tr>
 					{/if}
 				{/each}
@@ -448,6 +452,10 @@
 </div>
 
 <style>
+	.top {
+		background-color: #ffffffaa;
+	}
+
 	.header {
 		padding: 1rem;
 	}
@@ -468,7 +476,7 @@
 	.rateNumber {
 		font-size: 1.5rem;
 		font-weight: bolder;
-		padding: 0 1rem;
+		padding: 0.25rem 1rem 0;
 		color: #fff;
 		font-family: sans-serif;
 		border-radius: 5px;
@@ -522,17 +530,50 @@
 	}
 
 	.c_none {
-		background-color: #eee;
+		background-color: #fff;
 		color: #000;
+		text-decoration: underline;
 	}
 
-	.floatRight {
+	.buttons {
 		float: right;
+		display: flex;
+		gap: 1rem;
 	}
 
 	.options {
+		z-index: 999;
+		position: fixed;
+		top: 0;
+		right: 0;
+		background-color: #fff;
+		width: 360px;
+		height: 100vh;
 		padding: 1rem;
 		clear: both;
+	}
+
+	.optionHeading {
+		font-size: 1.25rem;
+	}
+
+	.optionHeading::after {
+		content: '';
+		position: relative;
+		z-index: -1;
+		bottom: -2px;
+		right: 0;
+		left: 1rem;
+		display: block;
+		width: calc(100% - 1rem);
+		height: 2px;
+		border-radius: 0.5rem;
+		background-color: #ff3b72;
+	}
+
+	.optionHeadingImage {
+		height: 1.5rem;
+		margin-right: 0.5rem;
 	}
 
 	.optionTitle {
@@ -540,6 +581,7 @@
 	}
 
 	.optionStar {
+		z-index: 99999;
 		margin: 0 0.75rem 0 0.5rem;
 		font-size: 1.75rem;
 		font-family: 'Mairyo';
@@ -548,6 +590,7 @@
 	}
 
 	.optionText {
+		z-index: 99999;
 		position: relative;
 		top: -0.1rem;
 		font-size: 1.15rem;
@@ -590,8 +633,8 @@
 	.filterTitle {
 		font-weight: 600;
 		display: inline-block;
-		padding: 0.15rem 1rem;
-		background-color: rgb(80, 80, 80);
+		padding: 0.15rem 1rem 0.3rem;
+		background-color: #505050;
 		color: #fff;
 		border-radius: 1.3rem;
 		margin-bottom: 1rem;
@@ -605,8 +648,19 @@
 	.filterButtons label {
 		width: 33%;
 		text-align: start;
-		font-size: 0.9rem;
+		font-size: 0.8rem;
 		line-height: 2;
+	}
+
+	.filterButtons input[type='radio'] {
+		position: relative;
+		top: 4px;
+		inline-size: 1rem;
+		block-size: 1rem;
+	}
+
+	.filterButtons input[type='radio']:checked {
+		accent-color: #ff3b72;
 	}
 
 	.sort {
@@ -631,6 +685,7 @@
 	}
 
 	.tableBase {
+		background-color: #ffffffaa;
 		padding: 0 1rem;
 	}
 
@@ -643,17 +698,18 @@
 	table {
 		margin: 0 auto;
 		border-collapse: collapse;
+		background-color: #fff;
 	}
 
 	thead {
-		background-color: #ddd;
+		background-color: #eee;
 	}
 
 	th {
 		font-size: 0.8rem;
 		font-weight: normal;
 		border: solid 1px;
-		padding: 0.25rem;
+		padding: 0.5rem 0.25rem;
 		text-align: center;
 		vertical-align: middle;
 	}
@@ -661,7 +717,7 @@
 	td {
 		font-size: 0.9rem;
 		border: solid 1px;
-		padding: 0.25rem;
+		padding: 0.5rem 0.25rem;
 		vertical-align: middle;
 	}
 
@@ -672,30 +728,40 @@
 
 	.num {
 		width: 7vw;
+		max-width: 4rem;
 	}
 
 	.numInput {
 		width: 100%;
 		min-width: 3rem;
+		height: 1.75rem;
+	}
+
+	.numTd {
+		padding: 0.25rem;
+	}
+
+	.difficulty {
+		text-align: center;
 	}
 
 	.EASY {
-		background-color: #bbbbff;
+		background-color: #0000ff33;
 	}
 
 	.NORMAL {
-		background-color: #aaffbb;
+		background-color: #aaffbb77;
 	}
 
 	.HARD {
-		background-color: #ffffbb;
+		background-color: #ffff0033;
 	}
 
 	.EXPERT {
-		background-color: #ffbbbb;
+		background-color: #ff000033;
 	}
 
 	.SPECIAL {
-		background-color: #ffbbff;
+		background-color: #ff00ff33;
 	}
 </style>
