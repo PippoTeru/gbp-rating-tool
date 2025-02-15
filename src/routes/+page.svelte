@@ -284,11 +284,11 @@
 			<div>
 				<p></p>
 				<button onclick={() => resetData()}>データリセット</button>
-				<p></p>
 			</div>
 		</div>
 	{/if}
 </div>
+<p></p>
 <div class="tableContainer">
 	<table border="1">
 		<thead>
@@ -419,7 +419,7 @@
 	}
 
 	.heading {
-		font-size: 2rem;
+		font-size: 1.5rem;
 	}
 
 	.rateDisplay {
