@@ -289,7 +289,7 @@
 	{#if sortVisible == 11}
 		<div class="options">
 			<h2 class="optionHeading">
-				<img class="optionHeadingImage" src="/title.png" alt="" />
+				<img class="optionHeadingImage" src="/gbp-rating-tool/title.png" alt="" />
 				楽曲絞り込み
 			</h2>
 			<div class="flexContainer">
