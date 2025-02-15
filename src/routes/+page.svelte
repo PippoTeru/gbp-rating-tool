@@ -197,7 +197,7 @@
 					<td>{item.title}</td>
 					<td>{getDifficulty(item)}</td>
 					<td>{item.level}</td>
-					<td>{getConstant(item).toFixed(2)}</td>
+					<td>{getConstant(item).toFixed(1)}</td>
 					<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
 					<td class="rate">{getRate(item).toFixed(2)}</td>
 					<td>{getPerfect(item)}</td>
@@ -244,7 +244,7 @@
 					<td>{item.title}</td>
 					<td>{getDifficulty(item)}</td>
 					<td>{item.level}</td>
-					<td>{getConstant(item).toFixed(2)}</td>
+					<td>{getConstant(item).toFixed(1)}</td>
 					<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
 					<td class="rate">{getRate(item).toFixed(2)}</td>
 					<td>{getPerfect(item)}</td>
