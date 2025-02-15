@@ -15,15 +15,12 @@
 	.base {
 		display: flex;
 		justify-content: center;
-		height: 100vh;
-		width: 100vw;
 	}
 
 	.container {
 		display: flex;
 		flex-direction: column;
 		width: 1080px;
-		height: 100vh;
 	}
 
 	.header {

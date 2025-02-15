@@ -174,8 +174,8 @@
 </script>
 
 <div class="rateDisplay">
-	<p>あなたの現在のレートは {rate.toFixed(2)} です。</p>
-	<a href={url}>JSONダウンロード</a>
+	<p class="rateText">あなたの現在のレートは {rate.toFixed(2)} です。</p>
+	<!-- <a href={url}>JSONダウンロード</a> -->
 </div>
 <div class="options">
 	<div class="flexContainer">
@@ -369,6 +369,11 @@
 		padding: 1rem;
 	}
 
+	.rateText {
+		font-size: 1.5rem;
+		line-height: 2;
+	}
+
 	.options {
 		padding: 1rem;
 	}
@@ -460,7 +465,7 @@
 
 	.tableContainer {
 		width: 100%;
-		overflow: scroll;
+		overflow-x: scroll;
 	}
 
 	table {
