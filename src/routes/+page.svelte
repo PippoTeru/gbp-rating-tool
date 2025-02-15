@@ -2,10 +2,9 @@
 	import { songsInitialData, songsData } from '$lib/store';
 	import { onMount } from 'svelte';
 
-	let sortFlag = $state(0);
-
 	let songs = $state($songsData);
 
+	let sortFlag = $state(0);
 	let sortKey = 'id';
 
 	function sortMode() {
@@ -78,15 +77,22 @@
 	function getRate(item: any) {
 		if (getAchievement(item) > 0) {
 			if (getAchievement(item) >= 10000000) {
-				return item.level + 2;
+				return Number(getConstant(item)) + 2;
 			} else if (getAchievement(item) >= 9800000) {
-				return item.level + 1 + (getAchievement(item) - 9800000) / 200000;
+				return Number(getConstant(item)) + 1 + (getAchievement(item) - 9800000) / 200000;
 			} else {
-				return item.level + (getAchievement(item) - 9500000) / 300000;
+				return Number(getConstant(item)) + (getAchievement(item) - 9500000) / 300000;
 			}
 		} else {
 			return 0;
 		}
+	}
+
+	function getConstant(item: any) {
+		if (item.constant == '') {
+			return item.level;
+		}
+		return item.constant;
 	}
 
 	let rate = $state(0);
@@ -103,7 +109,11 @@
 		list.forEach((score) => {
 			sum += score;
 		});
-		rate = sum / 30;
+		rate = Math.floor((sum / 30) * 100) / 100;
+
+		$songsData = songs;
+		blob = new Blob([JSON.stringify($songsData, null, '　')], { type: 'application/json' });
+		url = URL.createObjectURL(blob);
 	}
 
 	function enter(event: KeyboardEvent, index: number) {
@@ -124,6 +134,9 @@
 		elements[index].select();
 	}
 
+	let blob = new Blob([JSON.stringify($songsData, null, '　')], { type: 'application/json' });
+	let url = $state(URL.createObjectURL(blob));
+
 	onMount(() => {
 		change();
 	});
@@ -131,6 +144,7 @@
 
 <h1>ガルパ レーティングツール</h1>
 <h2>あなたの現在のレートは {rate.toFixed(2)} です。</h2>
+<a href={url}>JSONダウンロード</a>
 <div>
 	<p>絞り込み</p>
 	<button onclick={() => filterData('', '')}>すべて</button>
@@ -153,15 +167,19 @@
 	</div>
 	<button onclick={() => sortedData('id')}>デフォルト</button>
 	<button onclick={() => sortedData('title')}>楽曲名順</button>
+	<button onclick={() => sortedData('difficulty')}>難易度順</button>
 	<button onclick={() => sortedData('level')}>楽曲レベル順</button>
+	<button onclick={() => sortedData('constant')}>譜面定数順</button>
 </div>
 
 <table border="1">
 	<thead>
 		<tr>
+			<th>ID</th>
 			<th>楽曲名</th>
 			<th class="num">難易度</th>
 			<th class="num">レベル</th>
+			<th class="num">譜面定数</th>
 			<th class="num">達成率</th>
 			<th class="num">レート</th>
 			<th class="num">PERFECT</th>
@@ -175,9 +193,11 @@
 		{#each songs as item, index}
 			{#if filterKey == '' && filterValue == ''}
 				<tr class={getDifficulty(item)}>
+					<td>{item.id}</td>
 					<td>{item.title}</td>
 					<td>{getDifficulty(item)}</td>
 					<td>{item.level}</td>
+					<td>{getConstant(item).toFixed(2)}</td>
 					<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
 					<td class="rate">{getRate(item).toFixed(2)}</td>
 					<td>{getPerfect(item)}</td>
@@ -220,9 +240,11 @@
 				</tr>
 			{:else if item[filterKey] === filterValue}
 				<tr class={getDifficulty(item)}>
+					<td>{item.id}</td>
 					<td>{item.title}</td>
 					<td>{getDifficulty(item)}</td>
 					<td>{item.level}</td>
+					<td>{getConstant(item).toFixed(2)}</td>
 					<td>{(getAchievement(item) / 100000).toFixed(2)}</td>
 					<td class="rate">{getRate(item).toFixed(2)}</td>
 					<td>{getPerfect(item)}</td>
