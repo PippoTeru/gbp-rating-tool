@@ -11,6 +11,13 @@
 	let filterKey = $state('');
 	let filterValue = $state('');
 
+	let sortVisible = $state(0);
+
+	let rate = $state(0);
+
+	let blob = new Blob([JSON.stringify($songsData, null, '　')], { type: 'application/json' });
+	let url = $state(URL.createObjectURL(blob));
+
 	if (browser) {
 		const data = localStorage.getItem('data');
 		const sFlg = localStorage.getItem('sFlg');
@@ -38,8 +45,6 @@
 			filterValue = fVal;
 		}
 	}
-
-	let sortVisible = $state(0);
 
 	function sortVision() {
 		if (sortVisible == 0) {
@@ -139,8 +144,6 @@
 		return item.constant;
 	}
 
-	let rate = $state(0);
-
 	function getColorClass() {
 		if (rate >= 31) {
 			return 'c_gold';
@@ -213,9 +216,6 @@
 		rate = 0;
 	}
 
-	let blob = new Blob([JSON.stringify($songsData, null, '　')], { type: 'application/json' });
-	let url = $state(URL.createObjectURL(blob));
-
 	onMount(() => {
 		change();
 		localStorage.setItem('data', JSON.stringify(songs));
@@ -225,6 +225,7 @@
 <div class="top">
 	<header class="header">
 		<h1 class="heading">ガルパ レーティングツール</h1>
+		<p></p>
 	</header>
 	<div class="rateDisplay">
 		<p class="rateText">
