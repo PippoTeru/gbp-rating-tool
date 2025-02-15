@@ -1,8 +1,30 @@
 <script lang="ts">
 	import { songsInitialData, songsData } from '$lib/store';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 
 	let songs = $state($songsData);
+
+	let filterKey = $state('');
+	let filterValue = $state('');
+
+	if (browser) {
+		const data = localStorage.getItem('data');
+		const fKey = localStorage.getItem('fKey');
+		const fVal = localStorage.getItem('fVal');
+
+		if (data != null) {
+			songs = JSON.parse(data);
+		}
+
+		if (fKey != null) {
+			filterKey = fKey;
+		}
+
+		if (fVal != null) {
+			filterValue = fVal;
+		}
+	}
 
 	let sortFlag = $state(0);
 	let sortKey = 'id';
@@ -34,14 +56,14 @@
 				songs.sort((a, b) => (Number(a[key]) > Number(b[key]) ? -1 : 1));
 			}
 		}
+		change();
 	}
-
-	let filterKey = $state('');
-	let filterValue = $state('');
 
 	function filterData(key: string, value: string) {
 		filterKey = key;
 		filterValue = value;
+		localStorage.setItem('fKey', key);
+		localStorage.setItem('fVal', value);
 	}
 
 	function getDifficulty(item: any) {
@@ -111,6 +133,8 @@
 		});
 		rate = Math.floor((sum / 30) * 100) / 100;
 
+		localStorage.setItem('data', JSON.stringify(songs));
+
 		$songsData = songs;
 		blob = new Blob([JSON.stringify($songsData, null, '　')], { type: 'application/json' });
 		url = URL.createObjectURL(blob);
@@ -134,11 +158,18 @@
 		elements[index].select();
 	}
 
+	function resetData() {
+		songs = $songsInitialData;
+		localStorage.setItem('data', JSON.stringify(songs));
+		rate = 0;
+	}
+
 	let blob = new Blob([JSON.stringify($songsData, null, '　')], { type: 'application/json' });
 	let url = $state(URL.createObjectURL(blob));
 
 	onMount(() => {
 		change();
+		localStorage.setItem('data', JSON.stringify(songs));
 	});
 </script>
 
@@ -170,6 +201,11 @@
 	<button onclick={() => sortedData('difficulty')}>難易度順</button>
 	<button onclick={() => sortedData('level')}>楽曲レベル順</button>
 	<button onclick={() => sortedData('constant')}>譜面定数順</button>
+</div>
+<div>
+	<p></p>
+	<button onclick={() => resetData()}>データリセット</button>
+	<p></p>
 </div>
 
 <table border="1">
